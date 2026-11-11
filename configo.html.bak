@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configo</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: Poppins, "Segoe UI", Arial, sans-serif; }
+  [hidden] { display: none !important; }
+
+  /* =====================================================
+     PAGE 1: LANDING (your design, every rule starts with #landing)
+     ===================================================== */
+  #landing { height: 100vh; display: flex; background: #6b97c2; overflow: hidden; }
+
+  .deco { position: absolute; pointer-events: none; z-index: 0; }
+
+  #landing .left { flex: 1; padding: 24px 6vw; color: #fff; display: flex; flex-direction: column; position: relative; }
+  #landing .logo, #landing .text { position: relative; z-index: 1; }
+  #landing .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 4px; color: #2b5b8a; margin-left: -60px; margin-top: -10px; }
+  #landing .text { margin-top: 120px; }
+  #landing h1 { font-size: 3rem; line-height: 1.1; max-width: 600px; margin-top: -70px; }
+  #landing p { font-size: 1.5rem; line-height: 1.5; max-width: 480px; margin: 0 0 40px; }
+  #landing p b { color: #6a4fb6; }
+  #landing .btn { background: #2b6ca3; color: #fff; border: 0; padding: 14px 34px; font: inherit; font-weight: 600; letter-spacing: 1px; cursor: pointer; }
+  .toto { height: 30px; }
+
+  #landing .right { position: relative; width: 29%; background: #fff; border-top-left-radius: 100% 100%; }
+  #landing .right img { position: absolute; left: 0; top: 50%; width: 300px; max-width: none; transform: translate(-45%, -50%); }
+  #landing .right .tr { top: 0; right: 0; left: auto; transform: none; max-width: none; width: 350px; height: 450px; margin-top: -70px; margin-right: -80px; }
+
+  /* =====================================================
+     PAGE 2: THE APP (every rule starts with #app)
+     ===================================================== */
+  #app { color: #2b6ca3; background: #fff; min-height: 100vh; }
+
+  #app header {
+    height: 85px; background: #6b97c2; padding: 0 28px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-radius: 0 0 50% 50% / 0 0 26px 26px; position: relative; z-index: 20;
+  }
+  #app header img { height: 60px; }
+  .burger { background: none; border: 0; width: 50px; padding: 0; cursor: pointer; }
+  .burger i { display: block; height: 5px; background: #fff; margin: 7px 0; }
+
+  .sidebar {
+    display: none; position: fixed; top: 85px; right: 0; bottom: 0; width: 330px; z-index: 10;
+    background: #f0f7ff; padding: 50px 45px; flex-direction: column; gap: 26px;
+    box-shadow: -4px 0 12px rgba(0,0,0,.08);
+  }
+  .sidebar.open { display: flex; }
+  .sidebar button { background: #f4f9ff; border: 1px solid #9db6d1; padding: 12px; font: inherit; color: #555; cursor: pointer; }
+  .sidebar button.active { color: #2b6ca3; border-color: #2b6ca3; }
+  .sidebar button:hover { border-color: #2b6ca3; }
+
+  #app main { padding: 22px 48px 40px; }
+  #app h2 { margin: 0 0 8px; font-weight: 600; font-size: 1.5rem; }
+  #app .sub { margin: 0 0 22px; }
+  .cols { display: grid; grid-template-columns: 5fr 6.5fr; gap: 32px; align-items: start; }
+
+  #schema { border: 3px solid #a9cbee; border-radius: 8px; background: #fff; height: 360px; }
+
+  #app table { border-collapse: separate; border-spacing: 8px; width: 100%; }
+  #app th { background: #a9cbee; color: #fff; padding: 14px 8px; font-weight: 500; }
+  #app td { background: #f1f7fd; padding: 0; }
+  #app tr:nth-child(even) td { background: #deecfb; }
+  #app td span { display: block; padding: 14px 8px; }
+  #app td input { width: 100%; border: 0; background: transparent; padding: 14px 8px; font: inherit; color: inherit; }
+  #app td input:focus { outline: 2px solid #2b6ca3; }
+
+  .foot { text-align: right; margin-top: 16px; }
+  #app .btn { background: #2b6ca3; color: #fff; border: 0; padding: 14px 34px; font: inherit; font-weight: 500; letter-spacing: 1px; cursor: pointer; }
+
+  /* ===== NEW: IP Addresses section (only these rules are new) ===== */
+  #app { position: relative; }
+  .square { position: relative; }                       /* wraps #schema so the bottom image can sit on it */
+  .img-top    { position: absolute; top: 62px; right: 18px; width: 190px; z-index: 5; pointer-events: none; margin-top: -50px; }   /* fog.png  */
+  .img-bottom { position: absolute; left: -8px; bottom: -26px; width: 350px; pointer-events: none; margin-bottom: -200px;margin-left: -100px; }             /* taht.png */
+  #app td input::placeholder { color: #8d8d8d; font-size: .85rem; }
+  /* NEW: the message under the table */
+  .msg { margin-top: 12px; font-size: .92rem; min-height: 1.2em; }
+  .msg.ok { color: #1a7f37; } .msg.bad { color: #b42318; }
+  .msg ul { margin: 6px 0 0 18px; padding: 0; }
+</style>
+</head>
+<body>
+
+<!-- ================= PAGE 1 ================= -->
+<div id="landing">
+  <div class="left">
+    <div class="logo">
+      <img src="img1-removebg-preview.png" alt="im1" width="200" height="150">
+    </div>
+    <div class="text">
+      <h1>Automate Your Network Configuration</h1>
+      <div class="toto"></div>
+      <p>Upload your <b>GNS3</b> topology &ndash; <b>Configo</b> will detect nodes, links, and generate your network configurations instantly.</p>
+      <div class="toto"></div>
+      <button class="btn" onclick="document.getElementById('file').click()">IMPORT FILE</button>
+      <input id="file" type="file" accept=".gns3,.json" hidden>
+    </div>
+  </div>
+
+  <div class="right">
+    <img class="deco tr" src="img5.png" alt="im5">
+    <img src="img2.png" alt="im2">
+  </div>
+</div>
+
+<!-- ================= PAGE 2 (hidden until a file is imported) ================= -->
+<div id="app" hidden>
+  <header>
+    <img src="img1-removebg-preview.png" alt="im1">
+    <button class="burger" onclick="document.getElementById('menu').classList.toggle('open')" aria-label="Menu"><i></i><i></i><i></i></button>
+  </header>
+
+  <!-- NEW: data-p + onclick on the first two buttons (they open the pages) -->
+  <nav class="sidebar" id="menu">
+    <button data-p="identity" onclick="showPage('identity')">Device Identity</button>
+    <button data-p="ips" onclick="showPage('ips')">IP Addresses</button>
+    <button>routing prot</button>
+    <button>switching prot</button>
+    <button>...</button>
+    <button>...</button>
+  </nav>
+
+  <!-- NEW: top image, shown only on the IP page -->
+  <img class="img-top onlyips" src="foo.png" alt="fog" hidden>
+
+  <main>
+    <h2 id="title">Define Device Identity</h2>
+    <p class="sub" id="sub">Assign hostnames and access passwords for each device before configuration generation.</p>
+    <div class="cols">
+      <!-- NEW: .square wraps the schema; bottom image shown only on the IP page -->
+      <div class="square">
+        <div id="schema"></div>
+        <img class="img-bottom onlyips" src="taht.png" alt="taht" hidden>
+      </div>
+      <div>
+        <table>
+          <thead id="thead"><tr><th>Device</th><th>Type</th><th>Hostname</th><th>Password</th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div id="msg" class="msg"></div>                                  <!-- NEW -->
+        <div class="foot"><button class="btn" onclick="validate()">VALIDATE</button></div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script src="topology.js"></script>
+<script>
+  let topology = null;
+  const hostnames = {};
+  let page = "identity";                              // NEW: which page is open
+  const vals = {};                                   // NEW: remembers what you typed when you switch pages
+  const get = (k, d = "") => vals[k] ?? d;           // NEW
+  const esc = s => String(s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const kind = n => n.type === "vpcs" || /^pc/i.test(n.name) ? "pc" : /ovs|switch/i.test(n.name) ? "switch" : "router";
+
+  /* ---------- PAGE 1 -> PAGE 2: what happens when a file is chosen ---------- */
+  document.getElementById("file").addEventListener("change", e => importFile(e.target.files[0]));
+
+  async function importFile(file) {
+    if (!file) return;
+    let data;
+    try { data = JSON.parse(await file.text()); }
+    catch { alert("This is not a valid .gns3 file."); return; }
+
+    try {                                   // 1) normal way: ask the Python server
+      const r = await fetch("/api/topology/import", {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(data)});
+      if (!r.ok) throw new Error((await r.json()).detail);
+      topology = (await r.json()).topology;
+    } catch (err) {                         // 2) server not running: read the file here (lets you test by double-clicking)
+      console.warn("Server not available, reading the file in the browser:", err.message);
+      try { topology = parseGns3(data); } catch { alert("Could not read the topology in this file."); return; }
+    }
+    showApp();
+  }
+
+  function parseGns3(data) {
+    const t = data.topology || data, byId = {};
+    (t.nodes || []).forEach(n => byId[n.node_id] = n);
+    const port = (n, a, p, e) => {
+      const hit = (n.ports || []).find(x => x.adapter_number === a && x.port_number === p);
+      if (hit && hit.name) return hit.name;
+      if (n.node_type === "docker") return "eth" + a;              // real .gns3 files often have no port names
+      if (n.node_type === "vpcs") return "Ethernet" + a;
+      if (n.node_type === "ethernet_switch") return "Ethernet" + p;
+      return (e.label && e.label.text) || `${a}/${p}`;
+    };
+    return {
+      nodes: (t.nodes || []).map(n => ({name: n.name, type: n.node_type})),
+      links: (t.links || []).map(l => l.nodes.map(e => `${byId[e.node_id].name}:${port(byId[e.node_id], e.adapter_number, e.port_number, e)}`).join(" <-> "))
+    };
+  }
+
+  /* ---------- PAGE 2 ---------- */
+  function showApp() {
+    document.getElementById("landing").hidden = true;
+    document.getElementById("app").hidden = false;
+    showPage("identity");                                // CHANGED: was the table code, now it lives in showPage below
+    loadCurrent();                                       // NEW: fill the tables with what is really in GNS3
+  }
+
+  /* NEW: every cabled interface once, for the IP table */
+  function interfaces() {
+    const seen = new Set(), out = [];
+    topology.links.forEach(l => l.split(" <-> ").forEach(e => {
+      if (seen.has(e)) return;
+      seen.add(e);
+      const i = e.indexOf(":");
+      out.push({device: e.slice(0, i), interface: e.slice(i + 1)});
+    }));
+    return out;
+  }
+
+  /* NEW: "192.168.1.29 255.255.255.0" -> "192.168.1.29/24" (only for the label on the drawing) */
+  function short(v) {
+    const m = v.trim().split(/[\s/]+/);
+    if (m.length < 2 || /^\d+$/.test(m[1])) return m.join("/");
+    const bits = m[1].split(".").map(Number).reduce((a, o) => a + o.toString(2).replace(/0/g, "").length, 0);
+    return m[0] + "/" + bits;
+  }
+
+  /* NEW: the two pages. "identity" is your old table, unchanged; "ips" is the new one */
+  const PAGES = {
+    identity: {
+      title: "Define Device Identity",
+      sub: "Assign hostnames and access passwords for each device before configuration generation.",
+      heads: ["Device", "Type", "Hostname", "Password"],
+      rows: () => topology.nodes.map(n => {
+        const k = kind(n);
+        return `<tr data-device="${esc(n.name)}">
+          <td><span>${esc(n.name)}</span></td>
+          <td><span>${k}</span></td>
+          <td><input class="host" data-k="host|${esc(n.name)}" value="${esc(get("host|" + n.name, n.name.replace(/[^A-Za-z0-9-]/g, "-")))}"></td>
+          <td>${k === "pc" ? "<span>-</span>" : `<input type="password" data-k="pass|${esc(n.name)}" value="${esc(get("pass|" + n.name))}">`}</td>
+        </tr>`;
+      }).join("")
+    },
+    ips: {
+      title: "Assign IP Addresses",
+      sub: "Set IP addresses and subnet masks for each device interface.",
+      heads: ["Device", "Interface", "IP Address &amp; Subnet Mask", "Gateway"],
+      rows: () => interfaces().map(i => {
+        const k = i.device + "|" + i.interface;
+        return `<tr>
+          <td><span>${esc(i.device)}</span></td>
+          <td><span>${esc(i.interface)}</span></td>
+          <td><input data-k="ip|${esc(k)}" value="${esc(get("ip|" + k))}"></td>
+          <td><input data-k="gw|${esc(k)}" value="${esc(get("gw|" + k))}"></td>
+        </tr>`;
+      }).join("")
+    }
+  };
+
+  /* NEW: switches the page (title, table, images) */
+  function showPage(p) {
+    const P = PAGES[p];
+    page = p;                                           // NEW
+    document.getElementById("title").textContent = P.title;
+    document.getElementById("sub").textContent = P.sub;
+    document.getElementById("thead").innerHTML = `<tr>${P.heads.map(h => `<th>${h}</th>`).join("")}</tr>`;
+    document.getElementById("rows").innerHTML = P.rows();
+    document.getElementById("menu").classList.remove("open");
+    document.querySelectorAll("#menu button[data-p]").forEach(b => b.classList.toggle("active", b.dataset.p === p));
+    document.querySelectorAll(".onlyips").forEach(e => e.hidden = p !== "ips");   // fog.png and taht.png only on the IP page
+    draw();
+  }
+
+  /* the topology square: hostnames under the icons (and NEW: IPs at the cable ends) */
+  function draw() {
+    topology.nodes.forEach(n => hostnames[n.name] = get("host|" + n.name, n.name.replace(/[^A-Za-z0-9-]/g, "-")));
+    const labels = {};                                                              // NEW
+    interfaces().forEach(i => {
+      const v = get("ip|" + i.device + "|" + i.interface).trim();
+      if (v) labels[i.device + "|" + i.interface] = short(v);
+    });
+    const box = document.getElementById("schema");
+    if (window.drawTopology) drawTopology(box, topology, {hostnames, labels});
+    else box.textContent = "Put topology.js in the same folder as this file.";
+  }
+  document.getElementById("rows").addEventListener("input", e => {
+    if (e.target.dataset.k) { vals[e.target.dataset.k] = e.target.value; draw(); }
+  });
+
+  /* ===== NEW: talk to the backend ===== */
+  async function api(path, body) {
+    const r = await fetch(path, body === undefined ? {} : {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)});
+    const j = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(j.detail || r.statusText);
+    return j;
+  }
+  function msg(html, cls = "") { const m = document.getElementById("msg"); m.className = "msg " + cls; m.innerHTML = html; }
+
+  /* reads hostnames / IPs / gateways from the real devices; never overwrites something you already typed */
+  async function loadCurrent() {
+    msg("Reading the real values from the devices in GNS3, please wait...");
+    try {
+      const cur = await api("/api/current");
+      Object.entries(cur.hostnames).forEach(([d, h]) => { if (vals["host|" + d] === undefined) vals["host|" + d] = h; });
+      Object.entries(cur.ips).forEach(([k, v]) => {
+        if (vals["ip|" + k] === undefined) vals["ip|" + k] = v.ip;
+        if (vals["gw|" + k] === undefined) vals["gw|" + k] = v.gateway || "";
+      });
+      showPage(page);
+      const bad = Object.entries(cur.errors || {}).map(([d, e]) => esc(d) + ": " + esc(e));
+      msg(bad.length ? "Could not read: " + bad.join("; ") : "Current values loaded from GNS3.", bad.length ? "bad" : "ok");
+    } catch (e) { msg("Could not read GNS3 (" + esc(e.message) + "). Is the backend running?", "bad"); }
+  }
+
+  /* VALIDATE: checks the values, then applies them to the devices in GNS3 */
+  async function validate() {
+    const def = n => n.name.replace(/[^A-Za-z0-9-]/g, "-");
+    const rows = page === "identity"
+      ? topology.nodes.map(n => ({device: n.name, hostname: get("host|" + n.name, def(n)), password: get("pass|" + n.name)}))
+      : interfaces().map(i => ({device: i.device, interface: i.interface,
+          ip: get("ip|" + i.device + "|" + i.interface).trim(), gateway: get("gw|" + i.device + "|" + i.interface).trim()}));
+    msg("Applying to the devices in GNS3, please wait...");
+    try {
+      const r = await api(page === "identity" ? "/api/apply/identity" : "/api/apply/ips", rows);
+      msg(r.ok ? "Done. Applied on: " + r.applied.map(esc).join(", ")
+               : "Please fix:<ul>" + r.errors.map(e => "<li>" + esc(e) + "</li>").join("") + "</ul>", r.ok ? "ok" : "bad");
+    } catch (e) { msg(esc(e.message), "bad"); }
+  }
+</script>
+</body>
+</html>

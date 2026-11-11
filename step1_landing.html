@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configo</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+
+
+
+
+
+
+.deco { position: absolute; pointer-events: none; z-index: 0; }
+.logo, .text { position: relative; z-index: 1; }   /* keeps text above the images */
+
+
+
+
+
+.right .tr { top: 0; right: 0; left: auto; transform: none; max-width: none; width: 350px; height: 450px; margin-top: -70px; margin-right: -80px; }
+
+
+
+  /* the body is blue and holds exactly 2 divs side by side */
+  body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    background: #6b97c2;
+    font-family: Poppins, "Segoe UI", Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  /* DIV 1: the blue side, with logo, text and button */
+  .left {
+    flex: 1;
+    padding: 24px 6vw;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+     position: relative;
+    
+  }
+  .logo { display: flex; align-items: center; gap: 10px; font-weight: 700; letter-spacing: 4px; color: #2b5b8a; margin-left: -60px;margin-top: -10px; }
+  
+  .text { margin-top: 120px; }
+  h1 { font-size: 3rem; line-height: 1.1; max-width: 600px; margin-top: -70px; }
+  p { font-size: 1.5rem; line-height: 1.5; max-width: 480px; margin: 0 0 40px; }
+  p b { color: #6a4fb6; }
+  .btn { background: #2b6ca3; color: #fff; border: 0; padding: 14px 34px; font: inherit; font-weight: 600; letter-spacing: 1px; cursor: pointer; }
+.toto { height: 30px; }
+  /* DIV 2: the white side. Rounding only its top-left corner by the full
+     width and height turns the rectangle into a triangle with a curved edge */
+  .right {
+    position: relative;
+    width: 29%;
+    background: #fff;
+    border-top-left-radius: 100% 100%;
+  }
+  /* the picture sits on the curved edge, half on blue and half on white */
+  
+  .right img { position: absolute; left: 0; top: 50%; width: 300px; max-width: none; transform: translate(-45%, -50%); }
+</style>
+</head>
+<body>
+  <div class="left">
+   <div class="logo">
+    <img src="img1-removebg-preview.png" alt="im1" width="200" height="150">
+</div>
+    <div class="text">
+      <h1>Automate Your Network Configuration</h1>
+      <div class="toto"></div>
+      <p>Upload your <b>GNS3</b> topology &ndash; <b>Configo</b> will detect nodes, links, and generate your network configurations instantly.</p>
+      <div class="toto"></div>
+      <button class="btn" onclick="document.getElementById('file').click()">IMPORT FILE</button>
+      <input id="file" type="file" accept=".gns3,.json" hidden>
+    </div>
+  </div>
+
+  <div class="right">
+    <img class="deco tr" src="img5.png" alt="im5" >   <!-- right top -->
+    <img src="img2.png" alt="im2">
+  </div>
+
+</body>
+</html>

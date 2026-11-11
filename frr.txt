@@ -1,0 +1,11 @@
+sed -i 's/^ospfd=no/ospfd=yes/' /etc/frr/daemons
+/usr/lib/frr/frrinit.sh start
+vtysh
+show version
+
+
+cd C:\Users\MSI\confico-agent
+venv\Scripts\activate
+
+uvicorn server:app --reload
+vtysh -c "configure terminal" -c "interface lo" -c "ip address 10.2.2.1/24" -c "end" -c "write memory"

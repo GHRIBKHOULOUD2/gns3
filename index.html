@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configo</title>
+<style>
+:root{--blue:#6b97c2;--dark:#2b6ca3;--th:#b5d3f0;--r1:#f2f7fd;--r2:#e3effc;--ink:#2b6ca3}
+*{box-sizing:border-box}
+body{margin:0;font-family:Poppins,"Segoe UI",Arial,sans-serif;background:#f3f5f9;color:#333}
+[hidden]{display:none!important}
+header{background:var(--blue);height:78px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;border-radius:0 0 50% 50%/0 0 22px 22px;color:#fff}
+.logo{display:flex;align-items:center;gap:10px;font-weight:700;letter-spacing:3px;color:#2b5b8a}
+.logo img{height:46px}
+img.ph{background:#dbe8f5;color:#2b6ca3;font-size:12px;text-align:center}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--dark);color:#fff;border:0;padding:12px 26px;font-weight:600;letter-spacing:1px}
+.btn.alt{background:transparent;border:2px solid #fff}
+/* landing */
+#landing{display:flex;min-height:calc(100vh - 78px);background:var(--blue);color:#fff;align-items:center;padding:0 6vw;gap:4vw}
+#landing h1{font-size:clamp(2rem,5vw,3.4rem);margin:0 0 24px}
+#landing p{max-width:460px;font-size:1.1rem;line-height:1.5}
+#landing .hero{flex:1}#landing .pic{flex:1;text-align:center}
+#landing .pic img{max-width:100%;max-height:420px}
+.row{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+/* wizard */
+#wizard{display:flex;min-height:calc(100vh - 78px);background:#fff}
+main{flex:1;padding:26px 30px;min-width:0}
+aside{width:300px;background:#f0f7ff;padding:50px 30px;display:flex;flex-direction:column;gap:22px}
+aside button{background:#f2f8ff;border:1px solid #9db6d1;padding:12px;color:#555}
+aside button.on{color:var(--dark);border-color:var(--dark)}
+aside button.soon{opacity:.6}
+h2{color:var(--ink);margin:0 0 6px}.sub{color:var(--ink);margin:0 0 18px;font-size:.95rem}
+.cols{display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap}
+#topo{flex:1 1 280px;min-height:340px;border:2px solid #b5d3f0;border-radius:6px;background:#fff}
+.tablebox{flex:2 1 420px;min-width:0;overflow-x:auto}
+table{border-collapse:separate;border-spacing:6px;width:100%}
+th{background:var(--th);color:#fff;padding:12px 8px;font-weight:500}
+td{background:var(--r1);padding:0}tr:nth-child(even) td{background:var(--r2)}
+td span{display:block;padding:12px 8px}
+td input{width:100%;border:0;background:transparent;padding:12px 8px;font:inherit}
+td input:focus{outline:2px solid var(--dark)}
+.msg{margin-top:12px;font-size:.92rem}.msg.ok{color:#1a7f37}.msg.bad{color:#b42318}
+.msg ul{margin:6px 0 0 18px;padding:0}
+.right{text-align:right;margin-top:12px}
+@media(max-width:760px){#wizard,#landing{flex-direction:column}aside{width:100%}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><img class="ph" src="/static/im1.png" alt="im1" onerror="this.style.display='none'">CONFIGO</div>
+  <span id="proj"></span>
+</header>
+
+<section id="landing">
+  <div class="hero">
+    <h1>Automate Your Network Configuration</h1>
+    <p>Upload your GNS3 topology or connect to a running lab. Configo detects nodes and links and builds your network configuration.</p>
+    <div class="row">
+      <button class="btn" onclick="$('#file').click()">IMPORT FILE</button>
+      <button class="btn alt" onclick="loadLive()">LOAD FROM GNS3</button>
+      <input id="file" type="file" accept=".gns3,.json" hidden onchange="importFile(this.files[0])">
+    </div>
+  </div>
+  <div class="pic"><img class="ph" src="/static/im2.png" alt="im2" onerror="this.style.display='none'"></div>
+</section>
+
+<section id="wizard" hidden>
+  <main>
+    <h2 id="title"></h2><p class="sub" id="sub"></p>
+    <div class="cols">
+      <svg id="topo" viewBox="0 0 400 340"></svg>
+      <div class="tablebox">
+        <table><thead id="thead"></thead><tbody id="tbody"></tbody></table>
+        <div class="right"><button class="btn" onclick="validate()">VALIDATE</button></div>
+        <div id="msg" class="msg"></div>
+      </div>
+    </div>
+  </main>
+  <aside id="menu"></aside>
+</section>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const PAGES = [
+  {id:"identity", label:"Device Identity", title:"Define Device Identity",
+   sub:"Assign hostnames and access passwords for each device before configuration generation."},
+  {id:"ips", label:"IP Addresses", title:"Assign IP Addresses",
+   sub:"Set IP addresses and subnet masks for each device interface."},
+  {id:"routing", label:"routing prot", soon:true}, {id:"switching", label:"switching prot", soon:true},
+  {id:"more1", label:"...", soon:true}, {id:"more2", label:"...", soon:true}
+];
+let topo = null, page = "identity";
+const state = {identity:{}, ips:{}};
+
+const kind = n => n.type === "vpcs" || /^pc/i.test(n.name) ? "pc" : /ovs|switch/i.test(n.name) ? "switch" : "router";
+const ends = () => (topo.links || []).flatMap(l => l.split(" <-> ").map(e => { const i = e.indexOf(":"); return {device:e.slice(0,i), interface:e.slice(i+1)}; }));
+
+async function api(path, opt) {
+  const r = await fetch(path, opt);
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || r.statusText);
+  return body;
+}
+async function loadLive() { try { start(await api("/api/topology")); } catch (e) { alert(e.message); } }
+function importFile(f) {
+  if (!f) return;
+  const rd = new FileReader();
+  rd.onload = async () => {
+    try { start(await api("/api/import", {method:"POST", headers:{"Content-Type":"application/json"}, body:rd.result})); }
+    catch (e) { alert("Could not read this .gns3 file: " + e.message); }
+  };
+  rd.readAsText(f);
+}
+function start(t) {
+  topo = t;
+  $("#proj").textContent = "Project: " + t.project;
+  $("#landing").hidden = true; $("#wizard").hidden = false;
+  show("identity");
+}
+
+function show(id) {
+  const p = PAGES.find(x => x.id === id);
+  if (p.soon) { $("#msg").className = "msg"; $("#msg").textContent = p.label + " is not designed yet."; return; }
+  saveInputs(); page = id;
+  $("#title").textContent = p.title; $("#sub").textContent = p.sub; $("#msg").textContent = "";
+  $("#menu").innerHTML = PAGES.map(x => `<button class="${x.id===id?"on":""} ${x.soon?"soon":""}" onclick="show('${x.id}')">${esc(x.label)}</button>`).join("");
+  drawTopology(); drawTable();
+}
+
+function drawTopology() {
+  const n = topo.nodes, cx = 200, cy = 170, R = 125, pos = {};
+  n.forEach((d, i) => { const a = 2*Math.PI*i/n.length - Math.PI/2; pos[d.name] = [cx + R*Math.cos(a), cy + R*Math.sin(a)]; });
+  const lines = (topo.links || []).map(l => { const [a, b] = l.split(" <-> ").map(e => e.slice(0, e.indexOf(":")));
+    return pos[a] && pos[b] ? `<line x1="${pos[a][0]}" y1="${pos[a][1]}" x2="${pos[b][0]}" y2="${pos[b][1]}" stroke="#6b97c2" stroke-width="2"/>` : ""; }).join("");
+  const dots = n.map(d => { const [x, y] = pos[d.name], k = kind(d), col = k==="router" ? "#2b8a8a" : k==="switch" ? "#5b7fa6" : "#8a98a8";
+    return `<circle cx="${x}" cy="${y}" r="16" fill="${col}"/><text x="${x}" y="${y+4}" fill="#fff" font-size="10" text-anchor="middle">${k[0].toUpperCase()}</text>
+            <text x="${x}" y="${y+32}" font-size="11" text-anchor="middle" fill="#333">${esc(d.name)}</text>`; }).join("");
+  $("#topo").innerHTML = lines + dots;
+}
+
+function drawTable() {
+  const inp = (key, field, ph="", type="text") => `<td><input type="${type}" data-key="${esc(key)}" data-f="${field}" value="${esc((state[page][key]||{})[field] ?? "")}" placeholder="${ph}"></td>`;
+  if (page === "identity") {
+    $("#thead").innerHTML = "<tr><th>Device</th><th>Type</th><th>Hostname</th><th>Password</th></tr>";
+    $("#tbody").innerHTML = topo.nodes.map(n => {
+      state.identity[n.name] ||= {hostname: n.name.replace(/[^A-Za-z0-9-]/g, "-")};
+      return `<tr><td><span>${esc(n.name)}</span></td><td><span>${kind(n)}</span></td>${inp(n.name,"hostname")}${kind(n)==="pc" ? "<td><span>-</span></td>" : inp(n.name,"password","","password")}</tr>`;
+    }).join("");
+  } else {
+    $("#thead").innerHTML = "<tr><th>Device</th><th>Interface</th><th>IP Address &amp; Subnet Mask</th><th>Gateway</th></tr>";
+    $("#tbody").innerHTML = ends().map(e => { const k = e.device + "|" + e.interface;
+      return `<tr><td><span>${esc(e.device)}</span></td><td><span>${esc(e.interface)}</span></td>${inp(k,"ip","EX: 192.168.1.29 255.255.255.0")}${inp(k,"gateway")}</tr>`; }).join("");
+  }
+}
+
+function saveInputs() {
+  document.querySelectorAll("#tbody input").forEach(i => { (state[page][i.dataset.key] ||= {})[i.dataset.f] = i.value; });
+}
+
+async function validate() {
+  saveInputs();
+  let rows;
+  if (page === "identity") rows = topo.nodes.map(n => ({device:n.name, type:kind(n), ...state.identity[n.name]}));
+  else rows = ends().map(e => ({...e, ip:"", gateway:"", ...(state.ips[e.device+"|"+e.interface]||{})}));
+  const box = $("#msg");
+  try {
+    const r = await api("/api/validate/" + page, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(rows)});
+    box.className = "msg " + (r.ok ? "ok" : "bad");
+    box.innerHTML = r.ok ? "All values are valid." : "Please fix:<ul>" + r.errors.map(e => `<li>${esc(e)}</li>`).join("") + "</ul>";
+  } catch (e) { box.className = "msg bad"; box.textContent = e.message; }
+}
+</script>
+</body>
+</html>
